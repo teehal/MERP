@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Test nro 1</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"> </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="scripts/knockout-3.4.2.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.js"></script>
+        <script type="text/javascript" src="scripts/skillfunc.js"></script>
+        <script type="text/javascript" src="scripts/npcclasses.js"></script>
+ <!--       <script type="text/javascript" src="scripts/"></script> -->
+        <script type="text/javascript" src="scripts/ownscripts.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/styling.css">
+    </head>
+    <body>
+      <div class="top_buttons">
+        <button type="button" class="btn btn-primary test1" data-bind="click: NewCharacter">Add New</button>
+        <button type="button" class="btn btn-secondary test2" disabled>Export</button>
+        <button type="button" class="btn btn-secondary test3" disabled>Import</button>
+        <button type="button" class="btn btn-secondary" data-bind="enable: RemovedNPC().length > 0, click: ReturnNPC">Undo Remove</button>
+      </div>
+      <div class="clear_float"></div>
+       <div class="chargen" id="new_char" data-bind="if: create_new">
+      <div class="npc_selectors">
+          <select class="custom-select" id="npcclass" data-bind="options: AvailableClasses, value:char_class, optionsCaption: 'NPC Class' "></select>
+          <select class="custom-select" id="npcrace" data-bind="options: AvailableRaces, optionsCaption: 'NPC Race', enable: char_class(), value:char_race" ></select>
+          <select class="custom-select" id="primweap" data-bind="options: Weapons, optionsCaption: 'Primary Weapon', enable: char_race(), value:char_1stw"></select>
+          <select class="custom-select" id="secweap" data-bind="options: Weapons, optionsCaption: 'Secondary Weapon', enable: char_1stw(), value:char_2stw"></select>
+          <select class="custom-select" id="armor" data-bind="options: Armor, optionsCaption: 'Armor', enable: char_1stw(), value:char_armor"></select>
+     </div>
+     <div class="clear_float"></div>
+       <div class="input-group">
+         <div class="test_gropup">
+          <label class="lbl_npc" for="npclvl">Level</label>
+          <input class="lvl" type="number" id="npclvl" value=1 min=1 max=200 data-bind="value: char_lvl">
+          <label class="lbl_npc" for="npcdef"><b>DB</b></label>
+          <input class="lvl" type="number" id="npcdef" value=0 min=-200 max=200 data-bind="value: char_db">
+          <label class="lbl_npc" for="npchp"><b>HP:</b></label>
+          <input class="lvl" type="number" id="npchp" value=0 min=0 max=1000 data-bind="value:char_hp">
+          <label class="lbl_npc" for="npcofb"><b>OB</b></label>
+          <input class="lvl" type="number" id="npcofb" value=0 min=-200 max=200 data-bind="enable: char_1stw(), value: char_1stw() ? char_ob_pri : ''"><span> Primary</span>
+          <input class="lvl extra" type="checkbox" id="shield">Shield
+          <input class="lvl extra" type="checkbox" id="helmet">Helmet
+          <button type="button" class="btn btn-success add" data-bind="click: AddCharacter,enable:char_class() && char_1stw() && Number(char_hp()) > 0 && char_armor()">Create</button>
+        </div>
+      </div>
+        <div class="name_tag">
+          <label class="lbl_npc" for="npcname">Name</label>
+            <input class="lvl name" type="text" value="noname1" id="npcname">
+            <label class="lbl_npc" for="npcofb_sec"><b>OB</b></label>
+            <input class="lvl" type="number" id="npcofb_sec" value=0 min=-200 max=200 data-bind="enable: char_2stw() , value: char_2stw() ? char_ob_sec : ''"><span> Secondary</span>
+            <input class="lvl extra" type="checkbox" id="larmor">Leg Armor
+            <input class="lvl extra" type="checkbox" id="aarmor">Arm Armor
+            <button type="button" class="btn btn-danger oma" data-bind="click: NewCharacter">Close</button>
+        </div>
+      </div>
+    <table class="table table-striped">
+      <tbody  data-bind="foreach: NPClist">
+      <tr data-bind="css: { 'table-danger':NPC_dead}">
+        <td>
+          <div><b>Race: </b><span  data-bind="text: NPCrace"></span></div>
+          <div><b>Class: </b><span  data-bind="text: NPCclass"></span></div>
+          <div><b>Name: </b><span  data-bind="text: NPCname"></span></div>
+          <div><b>Level: </b><span  data-bind="text: NPClvl"></span></div>
+        </td>
+        <td>
+          <select class="custom-select" id="'sel_weap' + NPCnumber" data-bind="options: NPCweapons, value: NPCsel_weap">
+          </select>
+          <div class="small_armor"><b>Armor: </b><span data-bind="text: NPCarmor"></span></div>
+          <div>
+            <div class="small_armor">
+              <input class="lvl extra more" type="checkbox" data-bind="checked: NPC_helm">Helmet
+              <input class="lvl extra shield" type="checkbox" data-bind="checked: NPC_shield">Shield
+            </div>
+            <div>
+              <input class="lvl extra more" type="checkbox" data-bind="checked: NPC_arm">Arm armor
+              <input class="lvl extra" type="checkbox" data-bind="checked: NPC_leg">Leg armor
+            </div>
+          </div>
+        </td>
+        <td>
+            <div>
+              <b>OB: </b><span data-bind="text: NPCprim_weap_use() ? NPCAttBon_pri : NPCAttBon_sec"></span> / <span data-bind="text: NPCprim_weap_use() ? NPCob_orig_pri : NPCob_orig_sec"></span>
+            </div>
+            <div>
+              <b>DB: </b><span data-bind="text: NPCDefBon"></span><span data-bind="if: NPC_shield"><span data-bind="text: ' (shield) / ' + ( NPCDefBon() - 25)"></span></span> 
+            </div>
+          <div>
+            <input type="number" min=0 max=1000 class="lvl" data-bind="attr:{ id: 'penalty' + NPCnumber }"><button type="button" class="btn btn-secondary" data-bind="click:$parent.Penalize, ">Penalty</button>
+          </div>
+          <div>
+            <input type="number" min=0 max=1000 class="lvl" data-bind="attr:{ id: 'defence' + NPCnumber }"><button type="button" class="btn btn-secondary" data-bind="click: $parent.Defend">Defence</button>
+          </div>
+        </td>
+        <td>
+          <div>
+            <b>HP: </b><span data-bind="text: NPChp"></span> / <span data-bind="text: NPChp_orig"></span>
+          </div>
+          <div>
+            <input type="number" min=0 class="lvl" data-bind="attr:{ id: 'damage' + NPCnumber }">
+            <button type="button" class="btn btn-secondary" data-bind="click:$parent.Damage">Damage</button>
+          </div>
+          <div>
+            <input type="number" min=0 class="lvl" data-bind="attr:{ id: 'heal' + NPCnumber }">
+            <button type="button" class="btn btn-secondary" data-bind="click:$parent.Heal">Heal</button>
+          </div>
+        </td>
+        <td>
+          <b>Skills</b>
+        </td>
+        <td>
+          <div>
+            <button type="button" class="btn" data-bind="click:$parent.Edit" disabled>Edit</button>
+          </div>
+          <div>
+            <button type="button" class="btn" data-bind="click:$parent.Duplicate">Duplicate</button>
+          </div>
+          <div>
+            <button type="button" class="btn" data-bind="click:$parent.Remove">Remove</button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+    </table>
+    <script type="text/javascript">
+        var jee = new viewModel();
+        ko.applyBindings( jee );
+    </script>
+    </body>
+</html>
