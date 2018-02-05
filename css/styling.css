@@ -75,11 +75,11 @@ select.custom-select {
 }
 
 .btn.btn-success.add {
-  margin-left: 28.6rem;
+/*  margin-left: 28.6rem; */
 }
 
 .btn.btn-danger.oma {
-  margin-left: 25rem;
+/*  margin-left: 25rem; */
 }
 
 .small_armor {
@@ -98,4 +98,9 @@ select.custom-select {
 
 .leg_armor {
   margin-left: 0.5rem;
+}
+
+.skill_list {
+  height: 148px;
+  overflow: auto;
 }

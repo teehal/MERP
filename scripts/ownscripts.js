@@ -1,109 +1,4 @@
 
-const Classes = ['Animist', 'Bard', 'Mage', 'Ranger', 'Scout', 'Warrior'];
-const Races = ['Dwarf', 'Elf', 'Hobbit', 'Human'];
-const Weapons = ['Dagger', 'Longsword', 'Long Bow', 'Quarterstaff', 'Short Sword'];
-const Armor = ['No Armor', 'Soft Leather', 'Rigid Leather', 'Chain Mail', 'Plate'];
-var number_of_npc = 0;
-
-class NPC {
-
-    constructor( name, race, prof, lvl, ob_pri, ob_sec, db, hp, armor, addarmor, weapons ) {
-        this.NPCname = name;
-        this.NPCrace = race;
-        this.NPCclass = prof;
-        this.NPClvl = lvl;
-        this.NPCob_pri = ko.observable(Number(ob_pri));
-        this.NPCob_orig_pri = ob_pri;
-        this.NPCob_sec = ko.observable(Number(ob_sec));
-        this.NPCob_orig_sec = ob_sec;
-        this.NPCdb = ko.observable(Number(db));
-        this.NPCdb_orig = db;
-        this.NPChp = ko.observable(Number(hp));
-        this.NPChp_orig = Number(hp);
-        this.NPCarmor = this.ModifyArmor(armor);
-        this.NPCaddarmor = addarmor; // Array [bool,bool,bool,bool] => [shield, helmet, arm armor, leg armor]
-        this.NPCweapons = this.ModifyWeapons(weapons);  // Array, [primary weapon, secondary weapon]
-        this.NPCsel_weap = ko.observable(this.NPCweapons[0]);
-        this.NPCprim_weap_use = ko.computed( () => { if (this.NPCweapons[0] == this.NPCsel_weap()) return true; else return false; }, this);
-        this.NPC_dead = ko.observable(false);
-        this.NPC_shield = ko.observable(this.NPCaddarmor[0]);
-        this.NPC_helm = ko.observable(this.NPCaddarmor[1]);
-        this.NPC_arm = ko.observable(this.NPCaddarmor[2]);
-        this.NPC_leg = ko.observable(this.NPCaddarmor[3]);
-        this.NPCDefBon = ko.computed( () => {
-          let i = this.NPC_shield() ? 25 : 0;
-          return this.NPCdb() + i; }, this);
-        this.NPCAttBon_pri = ko.computed( () => {
-          let i = this.NPC_arm() ? -5 : 0;
-          return this.NPCob_pri() + i;
-        }, this)
-        this.NPCAttBon_sec = ko.computed( () => {
-          let i = this.NPC_arm() ? -5 : 0;
-          return this.NPCob_sec() + i;
-        }, this)
-        this.NPCnumber = number_of_npc;
-        this.prim_weap_in_use = ko.observable(true);
-        number_of_npc++;
-    }
-
-    ModifyWeapons(weaponlist) {
-        this.newlist=[];
-        if ( !Array.isArray(weaponlist) ) {
-            console.log("Not array.");
-            return weaponlist;
-        }
-
-        for ( let i of weaponlist ) {
-                console.log(" i " + i );
-            switch(i) {
-                case 'lsword':
-                    this.newlist.push('Longsword');
-                    break;
-                case 'ssword':
-                    this.newlist.push('Short sword');
-                    break;
-                case 'dagger':
-                    this.newlist.push('Dagger');
-                    break;
-                case 'qstaff':
-                    this.newlist.push('Quarterstaff');
-                    break;
-                case 'lbow':
-                    this.newlist.push('Long bow');
-                    break;
-                default:
-                    this.newlist.push(i);
-            }
-        }
-        console.log(" mod weap " + typeof( this.newlist ) + " " + this.newlist[0] );
-        return this.newlist;
-    }
-
-    ModifyArmor(arm) {
-        let armo = "";
-        switch(arm) {
-            case 'noarmor':
-                armo = 'No armor';
-                break;
-            case 'sleather':
-                armo = 'Soft leather';
-                break;
-            case 'rleather':
-                armo = 'Rigid leather';
-                break;
-            case 'chain':
-                armo = 'Chain mail';
-                break;
-            case 'plate':
-                armo = 'Plate mail';
-                break;
-            default:
-                armo = arm;
-        }
-        return armo;
-    }
-}
-
 function viewModel() {
     this.create_new = ko.observable(false);
     this.NPClist = ko.observableArray();
@@ -120,11 +15,17 @@ function viewModel() {
                                         return i;}, this);
     this.char_ob_sec = ko.pureComputed( () => { let i = getSkills(this.char_lvl(), this.char_class())[3];
                                         return i;}, this);
+    this.perception_bonus = ko.pureComputed( () => { return getSkills(this.char_lvl(), this.char_class())[4]; }, this);
+    this.stalk_hide_bonus = ko.pureComputed( () => { console.log("stalk_hide " + getSkills(this.char_lvl(), this.char_class())[5]); return getSkills(this.char_lvl(), this.char_class())[5]; }, this);
     this.char_2stw = ko.observable();
     var self = this;
     this.RemovedNPC = ko.observableArray();
     this.AvailableClasses = ko.observableArray(Classes);
     this.AvailableRaces = ko.observable(Races);
+    this.NPCSkills = ko.observableArray([new Skill('Perception', 0), new Skill('Stalk and hide', 0)]);
+    this.NPCskillsArray;
+    this.NPCTextFile = ko.observable();
+    let jsonData = [];
 
     this.NewCharacter = () => {
         let temp_value = self.create_new() ? false : true;
@@ -138,6 +39,7 @@ function viewModel() {
     };
 
     this.AddCharacter = () => {
+        this.NPCskillsArray = [];
         let d = document;
         this.weap = [];
         let name = d.getElementById('npcname').value;
@@ -153,9 +55,25 @@ function viewModel() {
         this.weap.push( d.getElementById('primweap').value );
         this.weap.push( d.getElementById('secweap').value );
 
-        self.NPClist.push( new NPC(name,race,prof,lvl,ob, ob_sec, db,hp,arm,aarm,this.weap, document) );
+        self.NPClist.push( new NPC(name,race,prof,lvl,ob, ob_sec, db,hp,arm,aarm,this.weap) );
 
+        for (let i = 0; i < this.NPCSkills().length; i++) {
+          this.NPCskillsArray.push(this.NPCSkills()[i]);
+          console.log("NPCskillsArray " + this.NPCskillsArray[i]);
+        }
     };
+
+    this.AddSkill = () => {
+      let d = document;
+      let skill_name = d.getElementById('skill_name').value;
+      let skill_bonus = d.getElementById('skill_bonus').value;
+      this.NPCSkills.push(new Skill(skill_name, skill_bonus));
+      this.NPCSkills.sort( (left, right) => {
+        return left.SkillName == right.SkillName ? 0 : ( left.SkillName < right.SkillName ? -1 : 1)
+      });
+      d.getElementById('skill_name').value = '';
+      d.getElementById('skill_bonus').value = '';
+    }
 
     this.Damage = (NPC) => {
         let dmg = document.getElementById('damage' + NPC.NPCnumber).value;
@@ -165,6 +83,23 @@ function viewModel() {
         }
     };
 
+    this.Export = () => {
+      console.log("Export");
+      jsonData = ko.toJSON(this.NPClist);
+      console.log("Json " + jsonData);
+      let dataBlob = new Blob([jsonData], {type:"text/plain"});
+      let dataBlobURL = window.URL.createObjectURL(dataBlob);
+      let downloadLink = document.createElement("a");
+      downloadLink.download = 'MERP_NPCs.txt';
+      downloadLink.innerHTML = "Save file";
+      downloadLink.href = dataBlobURL;
+      downloadLink.onclick = destroyClickedElement;
+      downloadLink.style.display = 'none';
+      document.body.appendChild(downloadLink);
+
+      downloadLink.click();
+    };
+
     this.Heal = (NPC) => {
       let hl = document.getElementById('heal' + NPC.NPCnumber).value;
       let hp_hl = NPC.NPChp() + Number(hl);
@@ -172,6 +107,39 @@ function viewModel() {
       if ( NPC.NPChp() > 0 && NPC.NPC_dead ) {
         NPC.NPC_dead(false);
       }
+    };
+
+    this.Import = () => {
+      let d = document.getElementById('NPCFile');
+      let NPCsFromFile;
+      let fileToLoad = d.files[0];
+      let fileReader = new FileReader();
+      let parsed = [];
+
+      let testF = (Reader) => {
+        return new Promise((resolve, reject) => {
+          Reader.readAsText(fileToLoad, "UTF-8");
+
+          Reader.onload = () => {
+            resolve(Reader.result);
+          };
+          Reader.onerror = () => {
+            reject('Error');
+          };
+        });
+      };
+      //fileReader.onload = (fileLoadedEvent) => {
+      //    textFromNPCFile = fileLoadedEvent.target.result;
+      //};
+      NPCsFromFile = testF(fileReader).then( JSON.parse).then( (response) => {
+      ProcessData(response, this.NPClist);
+      });
+
+
+      console.log("Import");
+
+    //  console.log("parsed " + textFromNPCFile);
+
     };
 
     this.Edit = (NPC) => {
@@ -259,6 +227,4 @@ function viewModel() {
     this.NPCcreator = () => {
       console.log("NPCcreator");
     };
-
-
 }

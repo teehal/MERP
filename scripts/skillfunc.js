@@ -7,3 +7,7 @@ const SkillLevel = (lvl, start,stop, inc, inc_after) => {
   console.log("lvl in SkillLevel " + lvl);
   return Number(start) + (( Number(lvl) - 1 ) < stop ? Number(lvl) - 1 : stop - 1) * Number(inc) + ( (Number(lvl) - stop) <= 0 ? 0 : lvl - stop ) * Number( inc_after );
 }
+
+const destroyClickedElement = (event) => {
+    document.body.removeChild(event.target);
+}

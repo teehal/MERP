@@ -10,8 +10,12 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
         <script type="text/javascript" src="scripts/knockout-3.4.2.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.js"></script>
+        <script type="text/javascript" src="scripts/constants.js"></script>
+        <script type="text/javascript" src="scripts/ClassNPC.js"></script>
+        <script type="text/javascript" src="scripts/ClassSkill.js"></script>
         <script type="text/javascript" src="scripts/skillfunc.js"></script>
         <script type="text/javascript" src="scripts/npcclasses.js"></script>
+        <script type="text/javascript" src="scripts/processData.js"></script>
  <!--       <script type="text/javascript" src="scripts/"></script> -->
         <script type="text/javascript" src="scripts/ownscripts.js"></script>
         <link rel="stylesheet" type="text/css" href="css/styling.css">
@@ -19,12 +23,16 @@
     <body>
       <div class="top_buttons">
         <button type="button" class="btn btn-primary test1" data-bind="click: NewCharacter">Add New</button>
-        <button type="button" class="btn btn-secondary test2" disabled>Export</button>
-        <button type="button" class="btn btn-secondary test3" disabled>Import</button>
+        <button type="button" class="btn btn-secondary test2" data-bind="click:Export">Export</button>
+        <input type="file" id="NPCFile" data-bind="value: NPCTextFile"></input>
+        <button type="button" class="btn btn-secondary test3" data-bind="click:Import, enable: NPCTextFile">Import</button>
         <button type="button" class="btn btn-secondary" data-bind="enable: RemovedNPC().length > 0, click: ReturnNPC">Undo Remove</button>
       </div>
       <div class="clear_float"></div>
        <div class="chargen" id="new_char" data-bind="if: create_new">
+      <div class="container-fluid">
+      <div class="row">
+      <div class="col-8">
       <div class="npc_selectors">
           <select class="custom-select" id="npcclass" data-bind="options: AvailableClasses, value:char_class, optionsCaption: 'NPC Class' "></select>
           <select class="custom-select" id="npcrace" data-bind="options: AvailableRaces, optionsCaption: 'NPC Race', enable: char_class(), value:char_race" ></select>
@@ -45,8 +53,7 @@
           <input class="lvl" type="number" id="npcofb" value=0 min=-200 max=200 data-bind="enable: char_1stw(), value: char_1stw() ? char_ob_pri : ''"><span> Primary</span>
           <input class="lvl extra" type="checkbox" id="shield">Shield
           <input class="lvl extra" type="checkbox" id="helmet">Helmet
-          <button type="button" class="btn btn-success add" data-bind="click: AddCharacter,enable:char_class() && char_1stw() && Number(char_hp()) > 0 && char_armor()">Create</button>
-        </div>
+          </div>
       </div>
         <div class="name_tag">
           <label class="lbl_npc" for="npcname">Name</label>
@@ -55,9 +62,34 @@
             <input class="lvl" type="number" id="npcofb_sec" value=0 min=-200 max=200 data-bind="enable: char_2stw() , value: char_2stw() ? char_ob_sec : ''"><span> Secondary</span>
             <input class="lvl extra" type="checkbox" id="larmor">Leg Armor
             <input class="lvl extra" type="checkbox" id="aarmor">Arm Armor
-            <button type="button" class="btn btn-danger oma" data-bind="click: NewCharacter">Close</button>
         </div>
       </div>
+      <div class="col-3">
+        <div class="skill_list">
+          <table class="table-striped">
+          <tbody data-bind="foreach: NPCSkills">
+          <tr>
+            <td>
+              <label class="lbl_npc"  data-bind="text: SkillName"></label>
+            </td>
+            <td>
+              <input class="lvl" type="number" data-bind="value: SkillBonus">
+            </td>
+          </tr>
+        </tbody>
+        </table>
+        </div>
+        <input id="skill_name" class="" type="text" placeholder="Skill name">
+        <input id="skill_bonus" class="lvl" type="number">
+        <button type="button" class="btn btn-primary" data-bind="click: AddSkill">Add</button>
+      </div>
+      <div class="col-1">
+        <button type="button" class="btn btn-success add" data-bind="click: AddCharacter,enable:char_class() && char_1stw() && Number(char_hp()) > 0 && char_armor()">Create</button>
+        <button type="button" class="btn btn-danger oma" data-bind="click: NewCharacter">Close</button>
+      </div>
+      </div>
+    </div>
+    </div>
     <table class="table table-striped">
       <tbody  data-bind="foreach: NPClist">
       <tr data-bind="css: { 'table-danger':NPC_dead}">
@@ -87,7 +119,7 @@
               <b>OB: </b><span data-bind="text: NPCprim_weap_use() ? NPCAttBon_pri : NPCAttBon_sec"></span> / <span data-bind="text: NPCprim_weap_use() ? NPCob_orig_pri : NPCob_orig_sec"></span>
             </div>
             <div>
-              <b>DB: </b><span data-bind="text: NPCDefBon"></span><span data-bind="if: NPC_shield"><span data-bind="text: ' (shield) / ' + ( NPCDefBon() - 25)"></span></span> 
+              <b>DB: </b><span data-bind="text: NPCDefBon"></span><span data-bind="if: NPC_shield"><span data-bind="text: ' (shield) / ' + ( NPCDefBon() - 25)"></span></span>
             </div>
           <div>
             <input type="number" min=0 max=1000 class="lvl" data-bind="attr:{ id: 'penalty' + NPCnumber }"><button type="button" class="btn btn-secondary" data-bind="click:$parent.Penalize, ">Penalty</button>
@@ -111,6 +143,20 @@
         </td>
         <td>
           <b>Skills</b>
+          <div class="skill_list">
+          <table class="table-striped">
+            <tbody data-bind="foreach: $parent.NPCskillsArray">
+              <tr>
+                <td>
+                  <label class="lbl_npc"  data-bind="text: SkillName"></label>
+                </td>
+                <td>
+                  <span data-bind="text: SkillBonus"></span>
+                </td>
+              </tr>
+            </tbody>
+        </table>
+        </div>
         </td>
         <td>
           <div>
@@ -127,8 +173,8 @@
     </tbody>
     </table>
     <script type="text/javascript">
-        var jee = new viewModel();
-        ko.applyBindings( jee );
+        ko.options.deferUpdates = true;
+        ko.applyBindings( new viewModel() );
     </script>
     </body>
 </html>

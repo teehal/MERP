@@ -5,8 +5,6 @@ const Warrior = (lvl) => {
   this.OBsecondary = SkillLevel(lvl, 28, 7, 8, 5);
   this.perception = SkillLevel(lvl, 5, 30, 3, 1);
   this.stalkhide = SkillLevel(lvl, 5, 30, 3, 1);
-  console.log("WARRIOR!");
-  console.log("HP " + this.hitPoints + " DB " + this.DB + " lvl " + lvl);
   return [this.hitPoints, this.DB, this.OBprimary, this.OBsecondary, this.perception, this.stalkhide];
 }
 
