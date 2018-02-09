@@ -24,14 +24,16 @@ function viewModel() {
     this.AvailableRaces = ko.observable(Races);
     this.NPCSkills = ko.observableArray();
     this.NPCSkills.push({'SkillName':'Perception', 'SkillBonus':this.perception_bonus});
-    this.NPCSkills.push({'SkillName':'Stalk and hide', 'SkillBonus':this.stalk_hide_bonus})
+    this.NPCSkills.push({'SkillName':'Stalk and hide', 'SkillBonus':this.stalk_hide_bonus});
     this.NPCskillsArray;
     this.NPCTextFile = ko.observable();
     let jsonData = [];
 
     this.NewCharacter = () => {
-        let temp_value = self.create_new() ? false : true;
-        self.create_new( temp_value );
+        FormatSkills(this.NPCSkills, [{'SkillName':'Stalk and hide', 'SkillBonus':this.stalk_hide_bonus},
+          {'SkillName':'Stalk and hide', 'SkillBonus':this.stalk_hide_bonus}]);
+        let temp_value = this.create_new() ? false : true;
+        this.create_new( temp_value );
         this.char_armor('null');
         this.char_class('null');
         this.char_race('null');
@@ -66,6 +68,7 @@ function viewModel() {
         self.NPClist.push(tempNPC);
     };
 
+
     this.AddSkill = () => {
       let d = document;
       let skill_name = d.getElementById('skill_name').value;
@@ -77,14 +80,14 @@ function viewModel() {
       });
       d.getElementById('skill_name').value = '';
       d.getElementById('skill_bonus').value = '';
-    }
+    };
 
     this.Damage = (NPC) => {
         let dmg = document.getElementById('damage' + NPC.NPCnumber).value;
         NPC.NPChp( NPC.NPChp() - dmg);
-        if ( NPC.NPChp() <= 0 ) {
+
+        if ( NPC.NPChp() <= 0 )
           NPC.NPC_dead(true);
-        }
     };
 
     this.Export = () => {
@@ -164,7 +167,9 @@ function viewModel() {
       let Na = tmp_arr[0].NPCarmor;
       let Naa = tmp_arr[0].NPCaddarmor;
       let Nw = tmp_arr[0].NPCweapons;
-      this.NPClist.push( new NPC(Nn, Nr, Nc, Nl, No, Nos, Nd, Nh, Na, Naa, Nw) );
+      let tempNPC = new NPC(Nn, Nr, Nc, Nl, No, Nos, Nd, Nh, Na, Naa, Nw);
+      tempNPC.SkillArray = tmp_arr[0].SkillArray;
+      this.NPClist.push( tempNPC );
     };
 
     this.Remove = (NPC) => {
@@ -226,6 +231,11 @@ function viewModel() {
       }
       NPC.NPCob_pri( j - d );
       NPC.NPCob_sec( j_s - d );
+    };
+
+    this.RemoveSkill = (skill) => {
+      let i = this.NPCSkills.indexOf(skill);
+      this.NPCSkills.splice(i, 1);
     };
 
     this.NPCcreator = () => {

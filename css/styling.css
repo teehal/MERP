@@ -10,25 +10,41 @@ button.btn.btn-primary.test1 {
 }
 
 button.btn.btn-secondary.test2 {
-  margin-right: 0.5rem;
+  margin-right: 2.5rem;
   background-color:pink;
 }
 
 button.btn.btn-secondary.test3 {
-  margin-right: 1rem;
+  margin-right: 0rem;
   background-color:lightblue;
+}
+
+button.btn.btn-primary.btn-sm.add {
+  margin-bottom: 0.25rem;
 }
 
 .clear_float {
   clear:both;
 }
 
+.custom-file-input.npc {
+  width: 1rem;
+  margin-top: 0.1rem;
+}
+
+.custom-file.file_lbl {
+  margin-left: 0.5rem;
+}
 .form-control.name {
   width: 25%;
 }
 
 .lvl {
   width: 3rem;
+}
+
+.lvl.skill {
+  width: 10rem;
 }
 
 .lvl.extra {
@@ -39,6 +55,15 @@ button.btn.btn-secondary.test3 {
 .lvl.extra.shield {
   margin-left: 2.1rem;
 }
+
+.lvl.extra.shld {
+  margin-left: 1.5rem;
+}
+
+.lvl.extra.hlmt {
+  margin-left: 2.4rem;
+}
+
 
 .lvl.extra.more {
   margin-left: 0rem;
@@ -75,7 +100,8 @@ select.custom-select {
 }
 
 .btn.btn-success.add {
-/*  margin-left: 28.6rem; */
+  margin-top: 1rem;
+  margin-bottom: 0.25rem;
 }
 
 .btn.btn-danger.oma {
@@ -101,6 +127,16 @@ select.custom-select {
 }
 
 .skill_list {
-  height: 148px;
+  height: 100px;
+  width: 240px;
   overflow: auto;
+  margin-top: 1rem;
+}
+
+.tiny_button {
+  height: 1.8rem;
+  width: 2rem;
+  margin-left: 0.25rem;
+/*  background-color: #dc3545;
+  color: white;*/
 }

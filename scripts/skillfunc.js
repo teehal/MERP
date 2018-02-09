@@ -11,3 +11,10 @@ const SkillLevel = (lvl, start,stop, inc, inc_after) => {
 const destroyClickedElement = (event) => {
     document.body.removeChild(event.target);
 }
+
+const FormatSkills = (obsArray, SkillArray) => {
+  obsArray.removeAll();
+
+  for (let i of SkillArray)
+      obsArray.push(i);
+}

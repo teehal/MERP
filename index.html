@@ -23,12 +23,12 @@
     <body>
       <div class="top_buttons">
         <button type="button" class="btn btn-primary test1" data-bind="click: NewCharacter">Add New</button>
-        <button type="button" class="btn btn-secondary test2" data-bind="click:Export">Export</button>
-        <label class="custom-file">
-          <input class="custom-file-input" type="file" id="NPCFile" data-bind="value: NPCTextFile"></input>
+        <label class="custom-file file_lbl">
+          <input class="custom-file-input npc" type="file" id="NPCFile" data-bind="value: NPCTextFile"></input>
           <span class="custom-file-control"></span>
         </label>
         <button type="button" class="btn btn-secondary test3" data-bind="click:Import, enable: NPCTextFile">Import</button>
+        <button type="button" class="btn btn-secondary test2" data-bind="click:Export">Export</button>
         <button type="button" class="btn btn-secondary" data-bind="enable: RemovedNPC().length > 0, click: ReturnNPC">Undo Remove</button>
       </div>
       <div class="clear_float"></div>
@@ -54,8 +54,8 @@
           <input class="lvl" type="number" id="npchp" value=0 min=0 max=1000 data-bind="value:char_hp">
           <label class="lbl_npc" for="npcofb"><b>OB</b></label>
           <input class="lvl" type="number" id="npcofb" value=0 min=-200 max=200 data-bind="enable: char_1stw(), value: char_1stw() ? char_ob_pri : ''"><span> Primary</span>
-          <input class="lvl extra" type="checkbox" id="shield">Shield
-          <input class="lvl extra" type="checkbox" id="helmet">Helmet
+          <input class="lvl extra shld" type="checkbox" id="shield">Shield
+          <input class="lvl extra hlmt" type="checkbox" id="helmet">Helmet
           </div>
       </div>
         <div class="name_tag">
@@ -78,13 +78,15 @@
             <td>
               <input class="lvl" type="number" data-bind="value: SkillBonus">
             </td>
+            <td>
+              <button class="tiny_button" data-bind="click: $parent.RemoveSkill">X</button>
           </tr>
         </tbody>
         </table>
         </div>
-        <input id="skill_name" class="" type="text" placeholder="Skill name">
+        <input id="skill_name" class="lvl skill" type="text" placeholder="Skill name">
         <input id="skill_bonus" class="lvl" type="number">
-        <button type="button" class="btn btn-primary" data-bind="click: AddSkill">Add</button>
+        <button type="button" class="btn btn-primary btn-sm add" data-bind="click: AddSkill">Add</button>
       </div>
       <div class="col-1">
         <button type="button" class="btn btn-success add" data-bind="click: AddCharacter,enable:char_class() && char_1stw() && Number(char_hp()) > 0 && char_armor()">Create</button>
