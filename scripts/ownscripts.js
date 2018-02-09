@@ -22,7 +22,9 @@ function viewModel() {
     this.RemovedNPC = ko.observableArray();
     this.AvailableClasses = ko.observableArray(Classes);
     this.AvailableRaces = ko.observable(Races);
-    this.NPCSkills = ko.observableArray([new Skill('Perception', 0), new Skill('Stalk and hide', 0)]);
+    this.NPCSkills = ko.observableArray();
+    this.NPCSkills.push({'SkillName':'Perception', 'SkillBonus':this.perception_bonus});
+    this.NPCSkills.push({'SkillName':'Stalk and hide', 'SkillBonus':this.stalk_hide_bonus})
     this.NPCskillsArray;
     this.NPCTextFile = ko.observable();
     let jsonData = [];
@@ -40,6 +42,11 @@ function viewModel() {
 
     this.AddCharacter = () => {
         this.NPCskillsArray = [];
+        let skills = JSON.parse(ko.toJSON(this.NPCSkills));
+
+        for ( let i = 0; i < skills.length; i++ )
+          this.NPCskillsArray.push( {'SkillName':skills[i].SkillName, 'SkillBonus':skills[i].SkillBonus} );
+
         let d = document;
         this.weap = [];
         let name = d.getElementById('npcname').value;
@@ -54,22 +61,19 @@ function viewModel() {
         let aarm = [ d.getElementById('shield').checked, d.getElementById('helmet').checked, d.getElementById('aarmor').checked, d.getElementById('larmor').checked ];
         this.weap.push( d.getElementById('primweap').value );
         this.weap.push( d.getElementById('secweap').value );
-
-        self.NPClist.push( new NPC(name,race,prof,lvl,ob, ob_sec, db,hp,arm,aarm,this.weap) );
-
-        for (let i = 0; i < this.NPCSkills().length; i++) {
-          this.NPCskillsArray.push(this.NPCSkills()[i]);
-          console.log("NPCskillsArray " + this.NPCskillsArray[i]);
-        }
+        let tempNPC = new NPC(name,race,prof,lvl,ob, ob_sec, db,hp,arm,aarm,this.weap);
+        tempNPC.SkillArray = this.NPCskillsArray;
+        self.NPClist.push(tempNPC);
     };
 
     this.AddSkill = () => {
       let d = document;
       let skill_name = d.getElementById('skill_name').value;
       let skill_bonus = d.getElementById('skill_bonus').value;
-      this.NPCSkills.push(new Skill(skill_name, skill_bonus));
+      this.NPCSkills.push({'SkillName':skill_name, 'SkillBonus':skill_bonus});
       this.NPCSkills.sort( (left, right) => {
-        return left.SkillName == right.SkillName ? 0 : ( left.SkillName < right.SkillName ? -1 : 1)
+        return left.SkillName.toUpperCase() == right.SkillName.toUpperCase() ? 0
+          : ( left.SkillName.toUpperCase() < right.SkillName.toUpperCase() ? -1 : 1)
       });
       d.getElementById('skill_name').value = '';
       d.getElementById('skill_bonus').value = '';

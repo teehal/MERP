@@ -24,7 +24,10 @@
       <div class="top_buttons">
         <button type="button" class="btn btn-primary test1" data-bind="click: NewCharacter">Add New</button>
         <button type="button" class="btn btn-secondary test2" data-bind="click:Export">Export</button>
-        <input type="file" id="NPCFile" data-bind="value: NPCTextFile"></input>
+        <label class="custom-file">
+          <input class="custom-file-input" type="file" id="NPCFile" data-bind="value: NPCTextFile"></input>
+          <span class="custom-file-control"></span>
+        </label>
         <button type="button" class="btn btn-secondary test3" data-bind="click:Import, enable: NPCTextFile">Import</button>
         <button type="button" class="btn btn-secondary" data-bind="enable: RemovedNPC().length > 0, click: ReturnNPC">Undo Remove</button>
       </div>
@@ -145,7 +148,7 @@
           <b>Skills</b>
           <div class="skill_list">
           <table class="table-striped">
-            <tbody data-bind="foreach: $parent.NPCskillsArray">
+            <tbody data-bind="foreach: SkillArray">
               <tr>
                 <td>
                   <label class="lbl_npc"  data-bind="text: SkillName"></label>
